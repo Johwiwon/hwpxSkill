@@ -7,7 +7,7 @@
   표 안 내용       함초롬돋움
 
 글꼴만 바꾼다. 크기(표 12pt·주석 13pt)와 • → * 기호 교체는
-team-report-hwpx 스킬의 inspect_report.py 로 점검한 뒤 고친다.
+inspect_report.py 로 점검한 뒤 고친다.
 
 charPr 의 fontRef 만 바꾸므로 본문 텍스트는 건드리지 않는다.
 

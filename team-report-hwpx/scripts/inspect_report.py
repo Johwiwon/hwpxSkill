@@ -58,7 +58,8 @@ def load(path):
     for p in H.iter('{%s}paraPr' % NS['hh']):
         case = p.find('.//hp:case', NS)
         m = (case if case is not None else p).find('.//hh:margin', NS)
-        intent = int(m.find('hc:intent', NS).get('value')) if m is not None else 0
+        it = m.find('hc:intent', NS) if m is not None else None
+        intent = int(it.get('value')) if it is not None else 0
         pp[p.get('id')] = dict(align=p.find('hh:align', NS).get('horizontal'), intent=intent)
     return S, cp, pp
 

@@ -1,51 +1,86 @@
 ---
 name: team-report-hwpx
-description: "팀장 최종본(2026-09-22, 지능화번역팀) 양식으로 한글(HWPX) 업무보고서를 새로 만들고, 기존 보고서가 그 양식을 지키는지 점검하는 스킬. 제목 상자·작성일 줄·□ㅇ-* 기호·글꼴·크기·자간·간격·표·그림·캡션·붙임 띠까지 최종본과 같게 생성한다. '보고서 작성', '보고서 만들어줘', '결과 보고서', '연구 결과 보고서', '한글 보고서', 'hwpx 보고서', '팀장 양식', '최종본 양식', '보고서 양식 점검', '보고서 서식 확인', '자간 맞춰줘', '줄 맞춤' 등의 요청 시 사용한다. 무엇을 어떤 순서로 쓸지(문제점↔추진내용 대응 등)는 korean-report-format 스킬, HWPX 일반 조작과 배포 전 검사는 hwpx 스킬과 함께 쓴다."
+description: "팀장 최종본(2026-09-22, 지능화번역팀) 양식으로 한글(HWPX) 업무보고서를 처음부터 끝까지 작성하는 통합 스킬. 절 구성(양식 A/B)·문제점↔추진 내용 대응·문장 규칙으로 내용을 잡고, 제목 상자·□ㅇ-* 기호·글꼴·크기·자간·간격·표·그림·캡션·붙임 띠까지 최종본과 같은 HWPX를 생성하며, 기존 HWPX·HWP 보고서의 양식·구조 점검과 배포 전 구조 검사까지 한다. '보고서 작성', '보고서 만들어줘', '결과 보고서', '연구 결과 보고서', '한글 보고서', 'hwpx 보고서', 'hwp 보고서 읽어줘', '팀장 양식', '보고서 양식', '보고서 구조', '개요 현황 문제점 추진내용', '보고서 점검', '보고서 검토', '문장 다듬기', '자간 맞춰줘', '줄 맞춤' 등의 요청 시 사용한다."
 allowed-tools: Bash(python3 *), Bash(node *), Read, Write, Edit, Glob, Grep
 ---
 
-# 팀장 최종본 보고서 양식
+# 팀장 최종본 보고서 작성 (통합)
 
 앞으로 작성하는 **모든 보고서는 이 양식을 따른다.** 기준은 팀장이 직접 고친
-최종본 두 편(2026-09-22)이다. 이 문서에서는 다음처럼 부른다.
+최종본 두 편(2026-09-22)과 팀장 전달 지침(2026-09-09)이다. 이 문서에서는
+최종본을 다음처럼 부른다.
 
 | 이름 | 유형 |
 |---|---|
 | 최종본 A | 결과 보고형(시스템 기능 구축 결과) |
 | 최종본 B | 연구 보고형(모델 선정·프롬프트 연구 결과) |
 
+이 스킬 하나로 **내용 설계 → 생성 → 점검 → 배포 전 검사**를 모두 한다.
+다른 스킬이 필요하지 않다(HWP 읽기·미리보기용 rhwp 는 `vendor/rhwp` 에 동봉, MIT).
+
 > 기준 보고서 원본은 배포 저장소에 넣지 않는다. 로컬에 있으면
 > `assets/reference/` 에 두고 `make_base.py` 로 기본 양식을 다시 만들 때만 쓴다.
-> 생성·점검은 원본 없이 동작한다.
 
-> **우선순위**: 글꼴·크기·자간·간격·표 모양은 이 스킬이 최우선이다.
-> `korean-report-format`(구성·흐름)과 `hwpx`(파일 조작)의 규칙이 이 문서와
-> 다르면 이 문서를 따른다. 사용자가 다르게 지시하면 지시를 따르고, 이
-> 문서에 반영할지는 작업이 끝난 뒤 한 줄로 제안한다.
+> 사용자가 이 문서와 다르게 지시하면 지시를 따르고, 문서에 반영할지는 작업이
+> 끝난 뒤 한 줄로 제안한다.
 
 ---
 
 ## 1. 작업 순서
 
 ```
-[1] 내용 설계        korean-report-format 스킬로 절 구성·문제점↔추진내용 대응을 잡는다
-[2] 입력 텍스트 작성  references/input-format.md 문법(□ ㅇ - * < > | [표] [그림] [붙임])
-[3] 생성            python3 scripts/build_report.py 입력.txt 출력.hwpx
-[4] 양식 점검        python3 scripts/inspect_report.py 출력.hwpx
-[5] 배포 전 검사      hwpx 스킬: validate.py --layout, fill_hwpx.py check --strict
-[6] 보고            생성기의 「줄 맞춤 보고」 중 '확인' 항목을 사용자에게 전달
+[1] 양식 선택        A(전형적) / B(간소화) — 지정이 없으면 물어본다            (§1-1)
+[2] 흐름 설계        문제점 ↔ 추진 내용 ↔ 기대효과 대응표를 먼저 합의            (§1-2)
+                    python3 scripts/plan_flow.py --problems N
+[3] 입력 텍스트 작성  references/input-format.md 문법(□ ㅇ - * < > | [표] [그림] [붙임])
+[4] 생성            python3 scripts/build_report.py 입력.txt 출력.hwpx
+[5] 점검            python3 scripts/inspect_report.py 출력.hwpx   (글꼴·기호·줄 채움)
+                    python3 scripts/check_report.py 출력.hwpx     (절 구성·개수 대응·라벨)
+[6] 배포 전 검사      python3 scripts/check_hwpx.py 출력.hwpx       (패키지·참조·표 구조)
+[7] 보고            생성기의 「줄 맞춤 보고」 중 '확인' 항목을 함께 전달
 ```
 
 - 생성기는 팀장 최종본의 `header.xml`을 그대로 쓰는 `assets/base.hwpx`를
   복제하므로 글꼴 정의·용지·쪽번호·제목 상자가 최종본과 같다.
-- **기존 HWPX를 고칠 때**는 생성기를 쓰지 않고 hwpx 스킬로 해당 문단만
-  고친다. 고친 글자는 빨간색으로 남기는 사용자 규칙을 따른다. 고친 뒤
-  `inspect_report.py`로 양식을 확인한다.
-- hwpx 스킬 검사 도구는 `lxml`·`python-hwpx` 가 필요하다. 시스템 Python에
-  없으면(외부 관리 환경) 임시 폴더에 설치해 쓴다:
-  `pip install --target <작업폴더>/pylib lxml python-hwpx` 후 `PYTHONPATH=<작업폴더>/pylib`.
+- **기존 HWP(바이너리) 보고서를 참고할 때**: `node scripts/read_hwp.mjs 원본.hwp 사본.hwpx`
+  로 읽기용 사본을 만든다(원본은 그대로). 사본으로 내용을 확인하고 결과물은 생성기로 새로 만든다.
+- **기존 HWPX를 고칠 때**: 생성기를 쓰지 않고 해당 문단의 XML만 고친다.
+  `<hp:t>` 텍스트만 바꾸고, 서식을 바꿀 때는 그 자리 charPr 을 복제한 새 id 를 쓴다
+  (공유 charPr 을 고치면 다른 문단까지 바뀐다). 본문을 고쳤으면 `hp:linesegarray`
+  를 지우고, 검토용으로 고친 글자를 빨간색(`textColor="#FF0000"` 복제 charPr)으로
+  남기면 대조가 쉽다. 고친 뒤 [5]·[6]을 다시 돌린다.
 - 예시 입력: `examples/sample.txt` (입력 문법 전체를 쓰는 가상의 보고서).
-  로컬에는 최종본 두 편을 옮긴 내부 예시가 더 있을 수 있다.
+- 미리보기: `node scripts/render_svg.mjs 파일.hwpx 폴더` (쪽별 SVG, 배치 확인용).
+
+---
+
+## 1-1. 양식 선택
+
+| 양식 | 절 구성 | 쓰는 때 |
+|---|---|---|
+| A 전형적 | 제목 → 목차 → 배경 → 목적 → 현황 → 필요성(문제점) → 개선방안(추진배경) → 기대효과 → 향후계획 → 붙임 | 5쪽 이상, 절마다 독립 설명 필요 |
+| B 간소화 | 제목 → 개요 → 현황 및 문제점 → 추진 내용 → 결론(기대효과) 및 향후 계획 → 붙임 | 3쪽 내외, 한 사안을 빠르게 전달 |
+
+- 팀장 최종본 두 편은 모두 **양식 B**다. 연구 보고서는 「현황 및 문제점」 자리에
+  「연구 과제」를 둔다(§2).
+- 짧은 현행화·정비 보고처럼 문제점이 약한 경우에는 「현황 및 문제점」을 빼고 개요
+  첫 ㅇ 에 현재 상태를 한 문장으로 쓴다(문제점을 과장하지 않는다).
+- 양식이 지정되지 않았으면 **물어본다.** 임의로 고르지 않는다.
+
+상세: [references/structure.md](references/structure.md)
+
+## 1-2. 서술 흐름
+
+1. **개수를 맞춘다**: 문제점 수 = 추진 내용 수(추진 내용이 더 많은 것은 허용,
+   적으면 안 됨). 기대효과도 그 대응을 따라간다.
+2. **개요만 읽어도 알게 한다**: 개요는 도입부가 아니라 요약이다.
+3. **절 사이 겹침은 정상이다**: 개요 → 현황 → 추진 내용은 같은 사안을 점점
+   구체화한다. 대신 층위를 다르게 한다(무엇을 왜 / 지금 무엇이 문제 / 그래서
+   무엇을 했나 / 그 결과 무엇이 좋아지나).
+4. **형제 항목끼리는 같은 사실을 두 번 말하지 않는다**(절 사이 겹침과 구분).
+5. **현황 절은 사실만** 쓰고, 결함 지적보다 성능 향상 논조로 쓴다.
+
+상세: [references/flow.md](references/flow.md), [references/writing-rules.md](references/writing-rules.md)
 
 ---
 
@@ -224,23 +259,31 @@ allowed-tools: Bash(python3 *), Bash(node *), Read, Write, Edit, Glob, Grep
 4. **장평은 제목(90) 외에는 100.** 줄 맞춤은 자간으로만 한다.
 5. **줄 맞춤 자간은 본문 −16, 표 −22를 넘기지 않는다.** 더 필요하면 문장을 고친다.
 6. **기존 문서의 빈 문단 크기와 내어쓰기 값을 바꾸지 않는다.**
-7. **배포 전 hwpx 스킬 검사를 통과시킨다**(validate --layout, fill_hwpx check --strict).
+7. **배포 전 `check_hwpx.py` 를 통과시킨다.** 실패 항목이 있으면 고친 뒤 다시 돌린다.
 8. 생성 결과를 보고할 때 '확인' 항목(마지막 줄이 짧은 문단)을 함께 알린다.
 
 ## 10. 파일
 
 ```
 scripts/build_report.py    입력 텍스트 → HWPX 생성(자간 자동 맞춤 포함)
-scripts/inspect_report.py  HWPX 양식 점검(글꼴·기호·줄 채움)
+scripts/inspect_report.py  양식 점검(글꼴·기호·줄 채움)
+scripts/check_report.py    구조 점검(양식 A/B, 개수 대응, 개요, 라벨, 줄 채움)
+scripts/plan_flow.py       문제점↔추진 내용↔기대효과 대응표 틀
+scripts/check_hwpx.py      배포 전 구조 검사(패키지·XML·참조·표)
+scripts/read_hwp.mjs       HWP → 읽기용 HWPX 사본
+scripts/render_svg.mjs     쪽별 SVG 미리보기(캐시 없는 파일은 간격이 넓게 그려짐)
+scripts/apply_fonts.py     기존 문서 글꼴 일괄 적용(□ HY헤드라인M, ㅇ·- 휴먼명조, 표·주석 함초롬돋움)
 scripts/layout.py          글자 폭 모델·줄 나눔 추정
 scripts/hwpx_style.py      charPr/paraPr/borderFill 찾기·복제
-scripts/make_base.py       최종본에서 base.hwpx 재생성
-scripts/render_svg.mjs     쪽별 SVG 미리보기(rhwp). 캐시 없는 파일은 간격이 넓게 그려지므로 배치 확인용
-assets/base.hwpx           본문을 비운 최종본(머리·용지·제목 상자)
-assets/reference/          (로컬 전용, 저장소 미포함) 팀장 최종본 원본
+scripts/hwpxlib.py         check_report·apply_fonts 공용 함수
+scripts/make_base.py       기준 보고서에서 base.hwpx 재생성(원본이 있을 때만)
+assets/base.hwpx           본문을 비운 최종본(머리·용지·제목 상자, 제목·작성일은 자리표시)
+vendor/rhwp/               HWP/HWPX 렌더러(MIT, LICENSE 동봉)
 examples/sample.txt        입력 문법 예시(가상의 내용)와 그림
-references/format-spec.md  HWPX 구현 숫자 전부
+references/structure.md    양식 A/B 절별 작성 지침
+references/flow.md         문제점·추진 내용·기대효과 연결 설계
+references/writing-rules.md 라벨·표 아래 주석·항목 통합 등 문장 규칙
 references/writing-style.md 팀장 수정 경향(가상 예시)
-references/writing-style-internal.md (로컬 전용) 원문 전후 비교
+references/format-spec.md  HWPX 구현 숫자 전부
 references/input-format.md 생성기 입력 문법
 ```
