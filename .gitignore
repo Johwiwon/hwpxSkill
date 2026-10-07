@@ -1,0 +1,5 @@
+__pycache__/
+*.pyc
+# 기준 보고서 원본·내부 예시는 올리지 않는다
+team-report-hwpx/assets/reference/
+team-report-hwpx/references/*-internal.md
