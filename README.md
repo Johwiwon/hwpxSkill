@@ -1,7 +1,38 @@
-# hwpxSkill — 팀장 최종본 양식 한글 보고서 스킬
+# hwpxSkill — Claude Code 스킬 모음
 
-한글(HWPX) 업무보고서를 팀장이 고친 최종본(2026-09-22) 양식대로 쓰는 Claude Code
-스킬 `team-report-hwpx` 입니다. 스킬 하나로 다음을 모두 합니다.
+업무에 쓰는 Claude Code 스킬을 모아 두는 저장소입니다. 스킬마다 폴더 하나이고, 필요한 것만 골라 설치합니다.
+
+| 스킬 | 하는 일 | 주로 쓰는 요청 |
+|---|---|---|
+| [`team-report-hwpx`](team-report-hwpx/) | 팀장 최종본 양식의 한글(HWPX) 업무보고서 생성·점검 | 「보고서 작성해줘」, 「보고서 양식 점검」 |
+| [`dark-seminar-deck`](dark-seminar-deck/) | 다크 테크 양식 세미나 발표자료(HTML → 이미지 PDF, 선택 PPTX) | 「발표자료 만들어줘」, 「세미나 자료 이 양식으로」 |
+
+## 설치
+
+```bash
+git clone https://github.com/Johwiwon/hwpxSkill.git
+
+# 내 모든 프로젝트에서 사용: 원하는 스킬 폴더를 복사
+cp -r hwpxSkill/<스킬 이름> ~/.claude/skills/
+
+# 또는 특정 프로젝트에서만 사용 (프로젝트 루트에서)
+mkdir -p .claude/skills && cp -r hwpxSkill/<스킬 이름> .claude/skills/
+```
+
+Windows에서는 `~/.claude/skills/` 가 `C:\Users\<사용자>\.claude\skills\` 입니다.
+설치 후 Claude Code를 다시 열면 스킬이 쓰입니다. 저장소를 업데이트한 뒤에는 같은 방법으로 다시 복사합니다.
+
+## 스킬 추가 규칙
+
+- 스킬 하나 = 최상위 폴더 하나(`<스킬 이름>/SKILL.md` 필수). 위 표에 한 줄, 아래에 절 하나를 추가합니다.
+- 내부 원본 문서·실제 업무 자료는 올리지 않습니다(필요하면 `.gitignore` 에 추가).
+- 외부 코드·글꼴을 넣으면 라이선스 파일을 함께 넣고 맨 아래 "포함된 외부 코드"에 적습니다.
+
+---
+
+## team-report-hwpx — 팀장 최종본 양식 한글 보고서
+
+한글(HWPX) 업무보고서를 팀장이 고친 최종본(2026-09-22) 양식대로 쓰는 스킬입니다. 스킬 하나로 다음을 모두 합니다.
 
 | 단계 | 하는 일 |
 |---|---|
@@ -14,22 +45,15 @@
 
 기준 보고서 원본은 이 저장소에 포함하지 않습니다. 모든 기능은 원본 없이 동작합니다.
 
-## 설치
+### 설치
 
 ```bash
-git clone https://github.com/Johwiwon/hwpxSkill.git
-
-# 내 모든 프로젝트에서 사용
 cp -r hwpxSkill/team-report-hwpx ~/.claude/skills/
-
-# 또는 특정 프로젝트에서만 사용 (프로젝트 루트에서)
-mkdir -p .claude/skills && cp -r hwpxSkill/team-report-hwpx .claude/skills/
 ```
 
-Windows에서는 `~/.claude/skills/` 가 `C:\Users\<사용자>\.claude\skills\` 입니다.
-설치 후 Claude Code를 다시 열면 「보고서 작성해줘」 같은 요청에 스킬이 쓰입니다.
+설치 후 「보고서 작성해줘」 같은 요청에 스킬이 쓰입니다.
 
-## 필요한 것
+### 필요한 것
 
 | 항목 | 용도 | 필수 |
 |---|---|---|
@@ -37,7 +61,7 @@ Windows에서는 `~/.claude/skills/` 가 `C:\Users\<사용자>\.claude\skills\` 
 | 한글(한컴오피스) + 글꼴 HY헤드라인M·휴먼명조·함초롬돋움 | 결과 파일 열람 | 필수 |
 | Node.js 18+ | HWP 읽기(`read_hwp.mjs`), 미리보기(`render_svg.mjs`) | 선택 |
 
-## 직접 실행
+### 직접 실행
 
 ```bash
 cd team-report-hwpx
@@ -54,7 +78,7 @@ node scripts/read_hwp.mjs 기존.hwp 사본.hwpx                       # HWP 읽
 
 ---
 
-# dark-seminar-deck — 다크 테크 양식 세미나 발표자료 스킬
+## dark-seminar-deck — 다크 테크 양식 세미나 발표자료
 
 한국어 세미나 발표자료를 정해진 다크 테크 양식(1920×1080, 남색 배경, Pretendard, 카드·칩 강조)으로
 만들어 이미지 PDF로 내보내는 Claude Code 스킬입니다. 필요하면 같은 화면의 PPTX(발표자 노트 포함)도 만듭니다.
@@ -99,6 +123,8 @@ bash $SK/scripts/pptx.sh shots my-deck.pptx notes.json            # 선택: PPTX
 
 부품 목록은 `references/components.md`, 문구 원칙은 `references/writing-rules.md`,
 문제 해결은 `references/troubleshooting.md` 를 봅니다.
+
+---
 
 ## 포함된 외부 코드
 
