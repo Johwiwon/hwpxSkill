@@ -98,6 +98,7 @@ cp -r hwpxSkill/dark-seminar-deck ~/.claude/skills/
 ```
 
 설치 후 Claude Code를 다시 열면 「발표자료 만들어줘」, 「세미나 자료 이 양식으로」 같은 요청에 스킬이 쓰입니다.
+발표 제목·발표자·주관(소속)은 스킬에 들어 있지 않고, 덱을 만들 때마다 사용자에게 묻습니다.
 
 ### 필요한 것
 
@@ -115,6 +116,7 @@ SK=~/.claude/skills/dark-seminar-deck
 bash $SK/scripts/new_deck.sh my-deck                              # 견본 덱 생성
 python3 $SK/scripts/slides.py my-deck/_build/src.html list       # 장 목록
 python3 $SK/scripts/slides.py my-deck/_build/src.html keep 1,2,7,12,13
+python3 $SK/scripts/slides.py my-deck/_build/src.html check    # 남은 자리표시(발표 제목·이름·부서 등) 검사
 node my-deck/_build/build.mjs                                     # 빌드
 bash $SK/scripts/shots.sh my-deck shots                           # 캡처 (1.5배)
 bash $SK/scripts/pdf.sh shots my-deck.pdf                         # 이미지 PDF
