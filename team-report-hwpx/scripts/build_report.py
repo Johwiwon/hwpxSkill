@@ -7,7 +7,7 @@
 
     제목: 사내 문서 검색 기능 개선 결과
     날짜: ’26. 9. 22            (생략 시 오늘)
-    부서: 지능화번역팀            (생략 시 지능화번역팀)
+    부서: 정보시스템팀            (필수 — 없으면 생성하지 않음)
 
     □ 개요
     ㅇ 본문 …
@@ -558,7 +558,7 @@ class Builder:
         sec = re.sub(r'<hp:run charPrIDRef="\d+"><hp:t>' + re.escape(TITLE_MARK) + '</hp:t></hp:run>',
                      lambda m: f'<hp:run charPrIDRef="{cid}"><hp:t> {self.esc(title)}</hp:t></hp:run>', sec)
         date = self.meta.get('날짜') or default_date()
-        dept = self.meta.get('부서') or '지능화번역팀'
+        dept = self.meta['부서']   # main()에서 있는지 확인함
         sec = sec.replace(DATE_MARK, self.esc(f'< {date}  {dept} >'))
         date_cid = self.st.char(F_SANS, SIZE_DATE)
         sec = re.sub(r'(<hp:p [^>]*paraPrIDRef="\d+"[^>]*><hp:run charPrIDRef=")\d+("><hp:t>&lt; )',
@@ -668,6 +668,9 @@ def main():
     a = ap.parse_args()
     src = Path(a.input)
     meta, items = parse(src.read_text(encoding='utf-8'))
+    if not (meta.get('부서') or '').strip():
+        sys.exit('머리 정보에 「부서:」가 없습니다. 작성일 줄에 들어갈 부서 이름을 사용자에게 받아 '
+                 '입력 첫머리에 「부서: ○○팀」으로 넣은 뒤 다시 실행하세요.')
     b = Builder(meta, src.parent, fit=not a.no_fit).build(items)
     b.write(Path(a.output))
     if not a.quiet:
