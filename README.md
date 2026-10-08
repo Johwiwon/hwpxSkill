@@ -52,6 +52,56 @@ node scripts/read_hwp.mjs 기존.hwp 사본.hwpx                       # HWP 읽
 입력 문법은 `references/input-format.md`, 양식 수치는 `references/format-spec.md`,
 구성·문장 규칙은 `references/structure.md`·`flow.md`·`writing-rules.md`·`writing-style.md` 를 봅니다.
 
+---
+
+# dark-seminar-deck — 다크 테크 양식 세미나 발표자료 스킬
+
+한국어 세미나 발표자료를 정해진 다크 테크 양식(1920×1080, 남색 배경, Pretendard, 카드·칩 강조)으로
+만들어 이미지 PDF로 내보내는 Claude Code 스킬입니다. 필요하면 같은 화면의 PPTX(발표자 노트 포함)도 만듭니다.
+
+| 단계 | 하는 일 |
+|---|---|
+| 덱 만들기 | 부품 13종(표지, 사례 카드, 방식 비교, 처리 흐름, 원칙 카드, 평가 설계, 비교 수치 카드, 막대 차트, 해석 카드, 담당 표시 단계, 현상·위험·대응, 정리, 감사합니다)이 든 견본 덱 생성 |
+| 장 구성 | 견본 장 고르기·복제·순서 바꾸기(`slides.py`) |
+| 빌드 | 아이콘(lucide)·막대 차트·쪽 번호를 채워 `index.html` 생성 |
+| 내보내기 | 헤드리스 크롬으로 캡처 → 이미지 PDF(실제 쪽수 자동 확인), 선택 PPTX |
+| 문구 | 결론형 장 제목, 숫자 표기, 측정하지 않은 효과 주장 금지 등 작성 원칙 |
+
+### 설치
+
+```bash
+cp -r hwpxSkill/dark-seminar-deck ~/.claude/skills/
+```
+
+설치 후 Claude Code를 다시 열면 「발표자료 만들어줘」, 「세미나 자료 이 양식으로」 같은 요청에 스킬이 쓰입니다.
+
+### 필요한 것
+
+| 항목 | 용도 | 필수 |
+|---|---|---|
+| Google Chrome | 슬라이드 캡처, PDF 묶기 (WSL에서는 윈도 크롬을 자동으로 찾음) | 필수 |
+| Node.js 18+ | 빌드, PPTX | 필수 |
+| npm | 아이콘 패키지 `lucide-static`, PPTX용 `pptxgenjs` 를 처음 한 번 `~/.cache/dark-seminar-deck` 에 설치 | 필수 |
+| Python 3 | 장 고르기, PDF 쪽수 확인, PPTX 노트 정리 | 필수 |
+
+### 직접 실행
+
+```bash
+SK=~/.claude/skills/dark-seminar-deck
+bash $SK/scripts/new_deck.sh my-deck                              # 견본 덱 생성
+python3 $SK/scripts/slides.py my-deck/_build/src.html list       # 장 목록
+python3 $SK/scripts/slides.py my-deck/_build/src.html keep 1,2,7,12,13
+node my-deck/_build/build.mjs                                     # 빌드
+bash $SK/scripts/shots.sh my-deck shots                           # 캡처 (1.5배)
+bash $SK/scripts/pdf.sh shots my-deck.pdf                         # 이미지 PDF
+bash $SK/scripts/pptx.sh shots my-deck.pptx notes.json            # 선택: PPTX
+```
+
+부품 목록은 `references/components.md`, 문구 원칙은 `references/writing-rules.md`,
+문제 해결은 `references/troubleshooting.md` 를 봅니다.
+
 ## 포함된 외부 코드
 
 - `vendor/rhwp/` — rhwp HWP 렌더러 WASM, MIT License (Copyright (c) 2025-2026 Edward Kim). `vendor/rhwp/LICENSE` 참고.
+- `dark-seminar-deck/assets/template/fonts/PretendardVariable.woff2` — Pretendard 글꼴, SIL Open Font License 1.1 (Copyright (c) 2021, Kil Hyung-jin). 같은 폴더의 `LICENSE-Pretendard.txt` 참고.
+- 아이콘 `lucide-static`(ISC)과 `pptxgenjs`(MIT)는 저장소에 넣지 않고 처음 실행할 때 npm으로 설치합니다.
