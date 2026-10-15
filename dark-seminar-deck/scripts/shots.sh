@@ -11,6 +11,8 @@ TOTAL=$(grep -c '<section class="slide' "$HTML")
 mkdir -p "$OUT"
 # 전체 캡처(번호 미지정)면 이전 덱의 sN.png 가 남지 않게 먼저 지운다
 [ $# -eq 0 ] && rm -f "$OUT"/s*.png
+# 덱 제목을 남겨 두면 pdf.sh 가 PDF 문서 제목(뷰어 탭·제목 표시줄)으로 쓴다
+python3 -c "import re,sys,html;m=re.search(r'<title>(.*?)</title>',open(sys.argv[1],encoding='utf8').read(),re.S);print(html.unescape(m.group(1).strip()) if m else '')" "$HTML" > "$OUT/_title.txt"
 URL=$(to_file_url "$HTML")
 OUTP=$(to_chrome_path "$OUT")
 SEP=/; [ "$WINCHROME" = 1 ] && SEP='\'
