@@ -28,7 +28,9 @@ def split_paras(xml):
     return out
 
 def ptext(p):
-    t=''.join(re.sub(r'<[^>]+>','',x) for x in re.findall(r'<hp:t>(.*?)</hp:t>', p, flags=re.S))
+    # 묶음/고정폭 빈칸·탭 요소는 글자로 바꾼 뒤 태그를 지운다(머리 기호 ' ㅇ ' 등의 공백이 사라지지 않게).
+    t=''.join(re.sub(r'<[^>]+>','',re.sub(r'<hp:(?:nbSpace|fwSpace)\s*/>',' ',re.sub(r'<hp:tab\b[^>]*/>','\t',x)))
+              for x in re.findall(r'<hp:t>(.*?)</hp:t>', p, flags=re.S))
     return (t.replace('&lt;','<').replace('&gt;','>')
              .replace('&amp;','&').replace('&quot;','"'))
 

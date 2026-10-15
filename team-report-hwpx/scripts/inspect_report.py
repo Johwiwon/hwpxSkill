@@ -64,14 +64,26 @@ def load(path):
     return S, cp, pp
 
 
+_SPACE_TAGS = {'nbSpace': ' ', 'fwSpace': ' ', 'tab': '\t'}
+
+
+def tstr(t):
+    """<hp:t> 의 글자. 묶음/고정폭 빈칸·탭 같은 자식 요소를 글자로 바꾸고 그 뒤 글자(tail)도 잇는다."""
+    out = [t.text or '']
+    for c in t:
+        out.append(_SPACE_TAGS.get(c.tag.rsplit('}', 1)[-1], ''))
+        out.append(c.tail or '')
+    return ''.join(out)
+
+
 def ptext(p):
-    return ''.join(t.text or '' for r in p.findall('hp:run', NS) for t in r.findall('hp:t', NS))
+    return ''.join(tstr(t) for r in p.findall('hp:run', NS) for t in r.findall('hp:t', NS))
 
 
 def runs_of(p, cp):
     out = []
     for r in p.findall('hp:run', NS):
-        t = ''.join(x.text or '' for x in r.findall('hp:t', NS))
+        t = ''.join(tstr(x) for x in r.findall('hp:t', NS))
         if t:
             out.append((t, cp[r.get('charPrIDRef')]))
     return out

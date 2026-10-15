@@ -59,14 +59,20 @@ FIGURE_WIDTH = 45360
 HEAD_FILL = '#DAEEF3'
 HIGHLIGHT_FILL = '#FFF7CC'
 
-# 머리 기호와 내어쓰기(HWPUNIT). 값은 최종본에서 잰 것.
+# 머리 기호와 내어쓰기(HWPUNIT).
+# 머리 기호 안의 공백은 묶음 빈칸(<hp:nbSpace/>)으로 쓴다(prefix_run). 일반 빈칸은 양쪽
+# 정렬에서 늘어나 첫 줄의 기호·본문 시작 위치가 문단마다 들쭉날쭉해지지만, 묶음 빈칸은
+# 일반 빈칸과 폭(글자 크기의 1/2)이 같고 늘어나지 않는다.
+# 내어쓰기 = 머리 기호 폭(빈칸·* 은 글자 크기의 1/2, ㅇ 은 글자 크기와 같음)이어야 둘째 줄이
+# 첫 줄 본문 시작선에 맞는다. ㅇ·- 는 최종본 실측값(머리 기호 폭과 일치), * 는 최종본 값
+# (−2986/−3149)이 기호 폭과 맞지 않아 둘째 줄이 어긋났으므로 기호 폭으로 계산한 값을 쓴다.
 PREFIX = {
-    'o': (' ㅇ ', SIZE_BODY, -2980),
-    'dash': ('  - ', SIZE_BODY, -2952),
-    'note1': ('  * ', SIZE_NOTE, -2986),
-    'note2': ('   * ', SIZE_NOTE, -3149),
-    'note1b': (' ** ', SIZE_NOTE, -2986),
-    'note2b': ('  ** ', SIZE_NOTE, -3149),
+    'o': (' ㅇ ', SIZE_BODY, -2980),      # 0.5+1+0.5 em × 15pt ≈ 3000
+    'dash': ('  - ', SIZE_BODY, -2952),   # 0.5×3 em + '-' × 15pt
+    'note1': ('  * ', SIZE_NOTE, -2600),  # 0.5×4 em × 13pt
+    'note2': ('   * ', SIZE_NOTE, -3250),  # 0.5×5 em × 13pt
+    'note1b': (' ** ', SIZE_NOTE, -2600),  # 0.5×4 em × 13pt
+    'note2b': ('  ** ', SIZE_NOTE, -3250),  # 0.5×5 em × 13pt
 }
 
 # 문단 사이 빈 줄(pt). 팀장 최종본 기준값.
@@ -257,6 +263,11 @@ class Builder:
             return f'<hp:run charPrIDRef="{cid}"/>'
         return f'<hp:run charPrIDRef="{cid}"><hp:t>{self.esc(text)}</hp:t></hp:run>'
 
+    def prefix_run(self, cid, prefix):
+        """머리 기호 런. 공백을 묶음 빈칸으로 바꿔 양쪽 정렬에도 폭이 고정되게 한다."""
+        body = self.esc(prefix).replace(' ', '<hp:nbSpace/>')
+        return f'<hp:run charPrIDRef="{cid}"><hp:t>{body}</hp:t></hp:run>'
+
     def para(self, ppid, runs_xml, page_break=False):
         return (f'<hp:p id="{self.next_pid()}" paraPrIDRef="{ppid}" styleIDRef="0" '
                 f'pageBreak="{1 if page_break else 0}" columnBreak="0" merged="0">{runs_xml}</hp:p>')
@@ -284,7 +295,7 @@ class Builder:
         sp, n, fill, note = 0, 1, 1.0, ''
         if self.fit:
             sp, n, fill, note = layout.fit_paragraph((prefix, size, 0, 100), body_runs, intent, face=face)
-        runs = [self.run(self.st.char(face, size, 0), prefix)]
+        runs = [self.prefix_run(self.st.char(face, size, 0), prefix)]
         for t, bold, small, color in pieces:
             runs.append(self.run(self.st.char(face, size - 2 if small else size, sp, bold=bold, color=color), t))
         self.body.append(self.para(self.st.para(align, intent), ''.join(runs)))
